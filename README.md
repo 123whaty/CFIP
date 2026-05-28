@@ -20,4 +20,4 @@
 
 ## 自动更新
 
-GitHub Actions 使用 `.github/workflows/update-generated-files.yml` 每小时统一运行 `py/` 目录里的生成脚本。脚本成功且输出非空时才覆盖对应的 `.txt` 文件，避免临时网络失败把结果清空，也避免多个 workflow 同时 push 造成冲突。
+GitHub Actions 使用 `.github/workflows/update-generated-files.yml` 每小时统一运行 `py/` 目录里的生成脚本。脚本成功且输出非空时才覆盖对应的 `.txt` 文件，避免临时网络失败把结果清空。

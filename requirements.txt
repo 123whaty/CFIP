@@ -1,0 +1,5 @@
+# Python 生成脚本依赖。
+# requests 用于请求外部数据源，lxml/beautifulsoup4 用于解析 HTML 表格和页面内容。
+requests
+lxml
+beautifulsoup4

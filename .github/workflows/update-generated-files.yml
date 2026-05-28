@@ -1,5 +1,8 @@
 name: Update generated files
 
+# 统一更新所有由 py/*.py 生成的 txt 文件。
+# 之前每个文件各有一个 workflow，容易出现多个定时任务同时 push 导致冲突；
+# 现在合并成一个 job 串行执行，最终只提交一次。
 on:
   push:
     branches:
@@ -12,9 +15,11 @@ on:
     - cron: "0 */1 * * *"
   workflow_dispatch:
 
+# workflow 需要把生成后的 txt 文件 commit 回仓库，所以必须开启 contents: write。
 permissions:
   contents: write
 
+# 同一时间只允许一个更新任务运行，避免定时任务与手动触发/代码推送互相抢 push。
 concurrency:
   group: update-generated-files
   cancel-in-progress: false
@@ -42,6 +47,8 @@ jobs:
         run: |
           set +e
 
+          # 格式：脚本路径:输出文件。
+          # 每个脚本只负责把最终内容打印到 stdout；这里用临时文件承接输出。
           outputs=(
             "py/All.py:All.txt"
             "py/Cdtools.py:Cdtools.txt"
@@ -66,6 +73,8 @@ jobs:
             python "$script" > "$tmp"
             status=$?
 
+            # 只有脚本成功且 stdout 非空时才覆盖旧文件。
+            # 这样外部数据源临时失败时，不会把已有可用节点列表清空。
             if [ "$status" -eq 0 ] && [ -s "$tmp" ]; then
               mv "$tmp" "$output"
             else
@@ -83,6 +92,7 @@ jobs:
       - name: Commit results
         shell: bash
         run: |
+          # 这里只跟踪自动生成的输出文件，不碰 More.txt/country.txt 等静态文件。
           outputs=(
             "All.txt"
             "Cdtools.txt"
@@ -102,6 +112,7 @@ jobs:
             exit 0
           fi
 
+          # 使用官方 bot 身份提交，提交信息带 [skip ci] 防止提交结果再次触发循环构建。
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add "${outputs[@]}"

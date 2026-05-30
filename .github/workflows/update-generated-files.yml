@@ -12,7 +12,7 @@ on:
       - "py/**"
       - "requirements.txt"
   schedule:
-    - cron: "0 */1 * * *"
+    - cron: "0 */3 * * *"
   workflow_dispatch:
 
 # workflow 需要把生成后的 txt 文件 commit 回仓库，所以必须开启 contents: write。
